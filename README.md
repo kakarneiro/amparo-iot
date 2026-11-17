@@ -1,4 +1,4 @@
-# Amparo · Dispositivo IoT de emergência
+﻿# Amparo · Dispositivo IoT de emergência
 
 **Global Solution 2026/2 · CitizenTech · FIAP · Disruptive Architectures: IoT, IoB & Generative IA**
 
@@ -69,7 +69,7 @@ Escolhas:
 
 *(exporte do Wokwi: menu ⋯ → "Download diagram as PNG" e salve em `docs/circuito-wokwi.png`)*
 
-Protótipo virtual: **https://wokwi.com/projects/SEU_ID_AQUI** *(preencher)*
+Protótipo virtual: **https://wokwi.com/projects/480761112127375361**
 
 ## 4. Comunicação em rede
 
