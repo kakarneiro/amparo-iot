@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "author": "Equipe Amparo - FIAP 2TDSPB",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-pushbutton", "id": "btn1", "top": -60, "left": 250, "attrs": { "color": "red", "label": "EMERGENCIA" } },
+    { "type": "wokwi-mpu6050", "id": "mpu1", "top": 120, "left": 260, "attrs": {} },
+    { "type": "wokwi-led", "id": "led1", "top": -80, "left": -120, "attrs": { "color": "green", "label": "STATUS" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 0, "left": -140, "attrs": { "value": "220" } },
+    { "type": "wokwi-buzzer", "id": "bz1", "top": 120, "left": -130, "attrs": { "volume": "0.1" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "btn1:1.l", "esp:4", "green", [ "h-20", "v60" ] ],
+    [ "btn1:2.l", "esp:GND.1", "black", [ "h-30", "v120" ] ],
+
+    [ "mpu1:VCC", "esp:3V3", "red", [ "h-20" ] ],
+    [ "mpu1:GND", "esp:GND.2", "black", [ "h-30" ] ],
+    [ "mpu1:SCL", "esp:22", "blue", [ "h-40" ] ],
+    [ "mpu1:SDA", "esp:21", "yellow", [ "h-50" ] ],
+
+    [ "led1:A", "r1:1", "green", [ "v20" ] ],
+    [ "r1:2", "esp:2", "green", [ "h40" ] ],
+    [ "led1:C", "esp:GND.1", "black", [ "v10", "h120" ] ],
+
+    [ "bz1:2", "esp:15", "orange", [ "h40" ] ],
+    [ "bz1:1", "esp:GND.1", "black", [ "h20", "v-60" ] ]
+  ]
+}

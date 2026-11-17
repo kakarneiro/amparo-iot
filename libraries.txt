@@ -1,0 +1,5 @@
+# Bibliotecas usadas pelo sketch (Wokwi instala automaticamente;
+# na IDE Arduino instale pelo Library Manager)
+Adafruit MPU6050
+Adafruit Unified Sensor
+ArduinoJson
