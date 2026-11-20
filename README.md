@@ -1,4 +1,4 @@
-﻿# Amparo · Dispositivo IoT de emergência
+# Amparo · Dispositivo IoT de emergência
 
 **Global Solution 2026/2 · CitizenTech · FIAP · Disruptive Architectures: IoT, IoB & Generative IA**
 
@@ -175,21 +175,27 @@ flowchart LR
 
 | # | Caso de teste | Procedimento | Resultado esperado | Resultado obtido |
 |---|---------------|--------------|--------------------|------------------|
-| 1 | Conexão Wi-Fi | Ligar o dispositivo | LED pisca e depois fica aceso; serial mostra IP | _preencher_ |
-| 2 | Evento TESTE ao ligar | Observar serial | `POST ... HTTP 201`, tipo TESTE; na API, nenhum atendimento criado | _preencher_ |
-| 3 | Botão de emergência | Pressionar o botão | Buzzer 400 ms, 3 piscadas, `HTTP 201`; na API, evento `EM_ATENDIMENTO` e atendimento `PENDENTE` para a cuidadora prioridade 1 | _preencher_ |
-| 4 | Detecção de queda | Wokwi: aceleração > 25 m/s² em um eixo / físico: bater o sensor na mesa | `QUEDA_DETECTADA` com o valor em g; mesma cadeia de acionamento | _preencher_ |
-| 5 | Anti-repetição | Apertar o botão 2× em menos de 10 s | Segundo evento ignorado (`intervalo minimo`) | _preencher_ |
-| 6 | Token inválido | Alterar `DEVICE_TOKEN` | `HTTP 401` e LED com piscada longa de falha | _preencher_ |
-| 7 | API fora do ar | Parar o container da API | `HTTP -1`/timeout, piscada longa; serial mostra `FALHA` | _preencher_ |
-| 8 | Queda de Wi-Fi | Desligar e religar o roteador | Serial: `Wi-Fi caiu, reconectando...` e o próximo evento é enviado | _preencher_ |
+| 1 | Conexão Wi-Fi | Ligar o dispositivo | LED pisca e depois fica aceso; serial mostra IP | ✔ Serial: `Conectado! IP: 10.10.0.2` (rede Wokwi-GUEST) |
+| 2 | Evento TESTE ao ligar | Observar serial | `POST /eventos` com tipo TESTE; na API, nenhum atendimento criado | ✔ JSON enviado no boot: `{"codigoSerial":"ESP32-0001","tipo":"TESTE",...}`. Regra "TESTE não aciona ninguém" validada na API (`EventoService.registrar`) |
+| 3 | Botão de emergência | Pressionar o botão | Buzzer, envio do evento; na API, evento `EM_ATENDIMENTO` e cuidadora prioridade 1 `PENDENTE` | ✔ Serial: `*** BOTAO_EMERGENCIA ***` e JSON montado. A mesma requisição (serial `ESP32-0001` + `X-Device-Token`) contra a API na VM Azure retornou **HTTP 201**, evento `EM_ATENDIMENTO`, Ana Paula `PENDENTE` (ver `amparo-devops/docs/evidencias.txt`, seção 13) |
+| 4 | Detecção de queda | Wokwi: eixo Z do MPU6050 no máximo (2 g) ou X, Y e Z no máximo | `QUEDA_DETECTADA` com o valor em g | ✔ Serial: `Impacto de 2.76 g` e `Impacto de 3.46 g detectado pelo acelerometro` |
+| 5 | Anti-repetição | Novo gatilho em menos de 10 s | Segundo evento ignorado | ✔ Serial: `Evento ignorado: intervalo minimo de 10 s ainda nao passou` (exibido uma única vez, após o ajuste do firmware) |
+| 6 | Token inválido | Alterar `DEVICE_TOKEN` | `HTTP 401` e LED com piscada longa | Não executado no simulador. A API rejeita requisição sem o header correto (`DeviceTokenFilter`); o firmware trata qualquer status diferente de 201 como falha |
+| 7 | API inacessível | `API_URL` sem servidor respondendo | `HTTP -1`, piscada longa; serial mostra `FALHA` | ✔ Serial: `HTTP -1` seguido de `FALHA ao enviar o evento. Verifique API_URL e o token.` |
+| 8 | Queda de Wi-Fi | Desligar e religar o roteador | `Wi-Fi caiu, reconectando...` e o próximo evento é enviado | Não executado: o Wokwi não permite derrubar a rede. Reconexão implementada em `enviarEvento()` → `conectarWiFi()` |
+| 9 | Histerese do acelerômetro | Manter o sensor em impacto e depois voltar ao repouso | Uma única detecção por impacto | ✔ Serial: `Acelerometro voltou ao repouso` só depois de baixar o eixo; nova queda só é aceita após o repouso |
 
-Evidências (prints em `docs/`): monitor serial, Swagger mostrando o evento criado,
-`GET /eventos/{id}/atendimentos` com a cuidadora acionada, tela do Wokwi/foto do circuito.
+**Evidências:** saída do monitor serial em [`docs/serial-wokwi.txt`](docs/serial-wokwi.txt),
+circuito em [`docs/circuito-wokwi.png`](docs/circuito-wokwi.png), e a requisição do dispositivo
+validada contra a API na nuvem em `amparo-devops/docs/evidencias.txt`.
+
+**Critérios adotados:** detecção correta do gatilho (botão ou impacto acima do limiar), formato do
+JSON igual ao `EventoRequest` da API, um único evento por ocorrência, e falha sinalizada ao usuário
+quando a API não responde 201.
 
 ### Limitações conhecidas
 
-- **Limiar de queda fixo (2,5 g)**: pode gerar falso positivo em um movimento brusco ou perder
+- **Limiar de queda fixo (1,8 g)**: pode gerar falso positivo em um movimento brusco ou perder
   uma queda "suave". Evolução: analisar a janela de tempo (impacto seguido de imobilidade) e
   calibrar com dados reais.
 - **Sem bateria/autonomia no protótipo**: alimentado por USB. O produto real precisaria de

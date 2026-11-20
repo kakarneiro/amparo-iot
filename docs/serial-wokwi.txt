@@ -1,0 +1,61 @@
+EVIDENCIAS - MONITOR SERIAL DO WOKWI (projeto https://wokwi.com/projects/480761112127375361)
+Execucao 1: botao + quedas + anti-repeticao (firmware inicial)
+---------------------------------------------------------------
+=== AMPARO - dispositivo de emergencia ===
+MPU6050 OK
+Conectando ao Wi-Fi Wokwi-GUEST.........
+Conectado! IP: 10.10.0.2
+POST http://SEU_IP_OU_HOST:8080/eventos
+  body: {"codigoSerial":"ESP32-0001","tipo":"TESTE","descricao":"Dispositivo ligado e conectado"}
+  HTTP -1
+  resposta: 
+
+*** BOTAO_EMERGENCIA: Botao de emergencia pressionado ***
+POST http://SEU_IP_OU_HOST:8080/eventos
+  body: {"codigoSerial":"ESP32-0001","tipo":"BOTAO_EMERGENCIA","descricao":"Botao de emergencia pressionado"}
+  HTTP -1
+  resposta: 
+FALHA ao enviar o evento. Verifique API_URL e o token.
+
+*** QUEDA_DETECTADA: Impacto de 2.76 g detectado pelo acelerometro ***
+POST http://SEU_IP_OU_HOST:8080/eventos
+  body: {"codigoSerial":"ESP32-0001","tipo":"QUEDA_DETECTADA","descricao":"Impacto de 2.76 g detectado pelo acelerometro"}
+  HTTP -1
+  resposta: 
+FALHA ao enviar o evento. Verifique API_URL e o token.
+Evento ignorado: intervalo minimo ainda nao passou
+(... repetido enquanto o sensor permanecia em impacto -> motivou o ajuste de histerese ...)
+
+*** QUEDA_DETECTADA: Impacto de 3.46 g detectado pelo acelerometro ***
+
+Execucao 2: firmware com histerese e aviso unico de intervalo
+---------------------------------------------------------------
+=== AMPARO - dispositivo de emergencia ===
+MPU6050 OK
+Conectando ao Wi-Fi Wokwi-GUEST.........
+Conectado! IP: 10.10.0.2
+POST http://SEU_IP_OU_HOST:8080/eventos
+  body: {"codigoSerial":"ESP32-0001","tipo":"TESTE","descricao":"Dispositivo ligado e conectado"}
+  HTTP -1
+  resposta: 
+
+*** QUEDA_DETECTADA: Impacto de 3.46 g detectado pelo acelerometro ***
+POST http://SEU_IP_OU_HOST:8080/eventos
+  body: {"codigoSerial":"ESP32-0001","tipo":"QUEDA_DETECTADA","descricao":"Impacto de 3.46 g detectado pelo acelerometro"}
+  HTTP -1
+  resposta: 
+FALHA ao enviar o evento. Verifique API_URL e o token.
+Acelerometro voltou ao repouso
+
+*** BOTAO_EMERGENCIA: Botao de emergencia pressionado ***
+POST http://SEU_IP_OU_HOST:8080/eventos
+  body: {"codigoSerial":"ESP32-0001","tipo":"BOTAO_EMERGENCIA","descricao":"Botao de emergencia pressionado"}
+  HTTP -1
+  resposta: 
+FALHA ao enviar o evento. Verifique API_URL e o token.
+Evento ignorado: intervalo minimo de 10 s ainda nao passou
+Acelerometro voltou ao repouso
+
+Observacao: nestes testes a API_URL apontava para um endereco sem servidor, por isso HTTP -1
+(caso de teste 7). A mesma requisicao foi validada contra a API na VM Azure (HTTP 201) na
+entrega de DevOps: https://github.com/kakarneiro/amparo-devops/blob/main/docs/evidencias.txt
